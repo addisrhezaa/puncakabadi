@@ -168,3 +168,10 @@ def konversimaster_delete(request, id):
     dataobj.Kuantitas = 0
     dataobj.save()
     return redirect("konversi")
+
+
+def jan(request, id):
+    dataobj = models.KonversiMaster.objects.get(IDKodeKonversiMaster=id)
+    dataobj.Kuantitas = 0
+    dataobj.save()
+    return redirect("konversi")
