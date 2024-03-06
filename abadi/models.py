@@ -173,3 +173,5 @@ class SaldoAwalArtikel(models.Model):
 
     def __str__(self):
         return str(self.IDLokasi + str(self.IDBahanBaku))
+
+
