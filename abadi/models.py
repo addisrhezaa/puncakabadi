@@ -49,7 +49,6 @@ class DetailSuratJalanPembelian(models.Model):
     def __str__(self):
         return str(self.NoSuratJalan)
 
-
 class TransaksiGudang(models.Model):
     IDDetailTransaksiGudang = models.AutoField(primary_key=True)
     KodeProduk = models.ForeignKey(Produk, on_delete=models.DO_NOTHING)
@@ -58,9 +57,6 @@ class TransaksiGudang(models.Model):
     tanggal = models.DateField()
     KeteranganACC = models.BooleanField()
     Lokasi = models.ForeignKey(Lokasi, on_delete=models.DO_NOTHING)
-
-    def __str__(self):
-        return str(self.id)
 
 
 class Penyusun(models.Model):
@@ -76,7 +72,7 @@ class Penyusun(models.Model):
 
 class KonversiMaster(models.Model):
     IDKodeKonversiMaster = models.AutoField(primary_key=True)
-    KodePenyusun = models.ForeignKey(Penyusun, on_delete=models.DO_NOTHING)
+    IDKodePenyusun = models.ForeignKey(Penyusun, on_delete=models.DO_NOTHING)
     Kuantitas = models.FloatField()
 
     def __str__(self):
@@ -123,6 +119,7 @@ class DetailSPK(models.Model):
 
 
 class TransaksiProduksi(models.Model):
+    
     idTransaksiProduksi = models.AutoField(primary_key=True)
     KodeArtikel = models.ForeignKey(Artikel, on_delete=models.DO_NOTHING)
     Lokasi = models.ForeignKey(Lokasi, on_delete=models.DO_NOTHING)
@@ -156,22 +153,22 @@ class DetailSPPB(models.Model):
 
 class SaldoAwalBahanBaku(models.Model):
     IDSaldoAwalBahanBaku = models.AutoField(primary_key=True)
-    IDBahanBaku = models.ForeignKey(Produk, on_delete=models.DO_NOTHING)
+    KodeProduk = models.ForeignKey(Produk, on_delete=models.DO_NOTHING)
     IDLokasi = models.ForeignKey(Lokasi, on_delete=models.DO_NOTHING)
     Jumlah = models.IntegerField()
     Harga = models.FloatField()
 
     def __str__(self):
-        return str(self.IDLokasi + str(self.IDBahanBaku))
+        return str(self.IDLokasi) + str(self.KodeProduk)
 
 
 class SaldoAwalArtikel(models.Model):
     IDSaldoAwalBahanBaku = models.AutoField(primary_key=True)
-    IDBahanBaku = models.ForeignKey(Artikel, on_delete=models.DO_NOTHING)
+    KodeProduk = models.ForeignKey(Artikel, on_delete=models.DO_NOTHING)
     IDLokasi = models.ForeignKey(Lokasi, on_delete=models.DO_NOTHING)
     Jumlah = models.IntegerField()
 
     def __str__(self):
-        return str(self.IDLokasi + str(self.IDBahanBaku))
+        return str(self.IDLokasi) + str(self.KodeProduk)
 
 
