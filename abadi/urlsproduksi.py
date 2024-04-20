@@ -53,8 +53,8 @@ urlpatterns = [
         viewsproduksi.delete_gudangretur,
         name="delete_gudangretur",
     ),
-    path("viewksbb", viewsproduksi.view_ksbb, name="view_ksbb"),
-    path("viewksbj", viewsproduksi.views_ksbj, name="views_ksbj"),
+    path("viewksbb", viewsproduksi.view_ksbb3, name="view_ksbb"),
+    path("viewksbj", viewsproduksi.view_ksbj2, name="views_ksbj"),
     path("viewrekapbarang", viewsproduksi.view_rekapbarang, name="view_rekapbarang"),
     path("viewpemusnahan", viewsproduksi.view_pemusnahan, name="view_pemusnahan"),
     path("addpemusnahan", viewsproduksi.add_pemusnahan, name="add_pemusnahan"),
@@ -120,6 +120,11 @@ urlpatterns = [
         "kalkulatorpenyesuaian",
         viewsproduksi.kalkulatorpenyesuaian,
         name="kalkulatorpenyesuaian",
+    ),
+    path(
+        "kalkulatorpenyesuaian2",
+        viewsproduksi.kalkulatorpenyesuaian2,
+        name="kalkulatorpenyesuaian2",
     ),
     path(
         "viewksbb/<str:id>/<str:tanggal>", viewsproduksi.detailksbb, name="detail_ksbb"

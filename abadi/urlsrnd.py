@@ -10,10 +10,11 @@ urlpatterns = [
     path("artikel/delete/<str:id>", viewsrnd.deleteartikel, name="delete_artikel"),
     path("penyusun", viewsrnd.views_penyusun, name="penyusun_artikel"),
     path(
-        "penyusun/tambah/<str:id>",
+        "penyusun/tambah/<str:id>/<str:versi>",
         viewsrnd.tambahdatapenyusun,
         name="tambah_data_penyusun",
     ),
+    path("penyusun/versi/tambah/<str:id>", viewsrnd.tambahversi, name="add_versi"),
     path("penyusun/update/<str:id>", viewsrnd.updatepenyusun, name="update_penyusun"),
     path("penyusun/delete/<str:id>", viewsrnd.delete_penyusun, name="delete_penyusun"),
     path("ksbj", viewsrnd.views_ksbj, name="views_ksbj"),
