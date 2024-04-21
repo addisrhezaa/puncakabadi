@@ -5,7 +5,6 @@ from django.db.models import Sum
 from datetime import datetime
 from django.db import IntegrityError
 
-
 # Create your views here.
 # Dashboard Gudang
 def view_accgudang(request):
@@ -44,6 +43,13 @@ def load_artikel(request):
     detailspk = models.DetailSPK.objects.filter(KodeArtikel=artikelobj)
 
     return render(request, "produksi/opsi_artikel.html", {"detailspk": detailspk})
+
+
+def load_penyusun(request):
+    kodeartikel = request.GET.get("artikel")
+    penyusun = models.Penyusun.objects.filter(KodeArtikel=kodeartikel)
+
+    return render(request, "produksi/opsi_penyusun.html", {"penyusun": penyusun})
 
 
 # SPK
@@ -163,6 +169,42 @@ def delete_detailspk(request, id):
     datadetailspk.delete()
     return redirect("detail_spk", id=dataspk.id)
 
+
+def track_spk(request, id):
+    dataartikel = models.Artikel.objects.all()
+    dataspk = models.SPK.objects.get(id=id)
+    datadetail = models.DetailSPK.objects.filter(NoSPK=dataspk.id)
+
+    # Data SPK terkait yang telah di request ke Gudang
+    transaksigudangobj = models.TransaksiGudang.objects.filter(
+        DetailSPK__NoSPK=dataspk.id, jumlah__gte=0
+    )
+
+    # Data SPK Terkait yang telah jadi di FG
+    transaksiproduksiobj = models.TransaksiProduksi.objects.filter(
+        DetailSPK__NoSPK=dataspk.id, Jenis="Mutasi"
+    )
+
+    # Data SPK Terkait yang telah dikirim
+    sppbobj = models.DetailSPPB.objects.filter(DetailSPK__NoSPK=dataspk.id)
+
+    if request.method == "GET":
+        tanggal = datetime.strftime(dataspk.Tanggal, "%Y-%m-%d")
+
+        return render(
+            request,
+            "produksi/trackingspk.html",
+            {
+                "data": dataartikel,
+                "dataspk": dataspk,
+                "datadetail": datadetail,
+                "tanggal": tanggal,
+                "transaksigudang": transaksigudangobj,
+                "transaksiproduksi": transaksiproduksiobj,
+                "transaksikeluar": sppbobj,
+            },
+        )
+    
 
 # SPPB
 def view_sppb(request):
@@ -1316,11 +1358,6 @@ def view_rekapbarang(request):
         return render(request, "produksi/rekap_barang.html", {"databarang": databarang})
 
 
-"""
-Tambahan 8/4/2024
-"""
-
-
 def view_ksbb(request):
     kodeproduk = models.Produk.objects.all()
     if len(request.GET) == 0:
@@ -1501,18 +1538,9 @@ def view_ksbb(request):
         )
 
 
-"""
-TAMBAHAN 28/03/2024
-1. Pemusnahan
-2. CRUD Produk SUBKON
-3. Transaksi Subkon - Puncak (Masuk)
-4. Transaksi Puncak - Subkon (Keluar)
-5. Coba Tracking SPK Sampai Mana
-"""
-
-
+# Pemusnahan Artikel
 def view_pemusnahan(request):
-    dataproduksi = models.PemusnahanArtikel.objects.all()
+    dataproduksi = models.PemusnahanArtikel.objects.all().order_by("-Tanggal")
     for i in dataproduksi:
         i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
 
@@ -1578,6 +1606,78 @@ def update_pemusnahan(request, id):
 
 def delete_pemusnahan(request, id):
     dataobj = models.PemusnahanArtikel.objects.get(IDPemusnahanArtikel=id)
+
+    dataobj.delete()
+    return redirect(view_pemusnahan)
+
+
+# Pemusnahan Barang
+def view_pemusnahanbarang(request):
+    dataproduksi = models.PemusnahanBahanBaku.objects.all().order_by("-Tanggal")
+    for i in dataproduksi:
+        i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
+
+    return render(
+        request, "produksi/view_pemusnahanbarang.html", {"dataproduksi": dataproduksi}
+    )
+
+
+def add_pemusnahanbarang(request):
+    databarang = models.Produk.objects.all()
+    datalokasi = models.Lokasi.objects.all()
+    if request.method == "GET":
+        return render(
+            request,
+            "produksi/add_pemusnahanbarang.html",
+            {"nama_lokasi": datalokasi, "databarang": databarang},
+        )
+    else:
+        print(request.POST)
+        # Get object
+        kodeproduk = request.POST["produk"]
+        lokasi = request.POST["nama_lokasi"]
+        jumlah = request.POST["jumlah"]
+        tanggal = request.POST["tanggal"]
+        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
+        lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
+        pemusnahanobj = models.PemusnahanBahanBaku(
+            Tanggal=tanggal, Jumlah=jumlah, KodeBahanBaku=produkobj, lokasi=lokasiobj
+        )
+        pemusnahanobj.save()
+        return redirect("view_pemusnahanbarang")
+
+
+def update_pemusnahanbarang(request, id):
+    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+    dataobj.Tanggal = dataobj.Tanggal.strftime("%Y-%m-%d")
+    lokasiobj = models.Lokasi.objects.all()
+    if request.method == "GET":
+
+        return render(
+            request,
+            "produksi/update_pemusnahanbarang.html",
+            {"data": dataobj, "nama_lokasi": lokasiobj},
+        )
+
+    else:
+        kodeproduk = request.POST["produk"]
+        lokasi = request.POST["nama_lokasi"]
+        jumlah = request.POST["jumlah"]
+        tanggal = request.POST["tanggal"]
+        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
+        lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
+
+        dataobj.Tanggal = tanggal
+        dataobj.Jumlah = jumlah
+        dataobj.KodeBahanBaku = produkobj
+        dataobj.lokasi = lokasiobj
+
+        dataobj.save()
+        return redirect("view_pemusnahanbarang")
+
+
+def delete_pemusnahanbarang(request, id):
+    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
 
     dataobj.delete()
     return redirect(view_pemusnahan)
@@ -1660,9 +1760,100 @@ def delete_produksubkon(request, id):
     return redirect("read_produksubkon")
 
 
+# Transaksi Subkon Kirim
+def view_subkonkirim(request):
+    datasubkon = models.DetailSubkonKirim.objects.all().order_by("IDSubkonKirim__Tanggal")
+
+    return render(request, "produksi/view_subkonkirim.html", {"datasubkon": datasubkon})
+
+
+def add_subkonkirim(request):
+    if request.method == "GET":
+        subkonkirim = models.DetailSubkonKirim.objects.all()
+        detailsk = models.SubkonKirim.objects.all()
+        getproduk = models.Produk.objects.all()
+
+        return render(
+            request,
+            "produksi/add_subkonkirim.html",
+            {"subkonkirim": subkonkirim, "detailsk": detailsk, "getproduk": getproduk},
+        )
+    if request.method == "POST":
+        nosuratjalan = request.POST["nosuratjalan"]
+        tanggal = request.POST["tanggal"]
+        supplier = request.POST["supplier"]
+        nomorpo = request.POST["nomorpo"]
+
+        if nomorpo == "":
+            nomorpo = "-"
+        if supplier == "":
+            supplier = "-"
+        subkonkirimobj = models.SubkonKirim(IDSubkonKirim=nosuratjalan, Tanggal=tanggal, supplier=supplier, PO=nomorpo)
+        subkonkirimobj.save()
+
+        subkonkirimobj = models.SubkonKirim.objects.get(IDSubkonKirim=nosuratjalan)
+        for kodeproduk, jumlah in zip(request.POST.getlist("kodeproduk"), request.POST.getlist("jumlah")):
+            # print(kodeproduk)
+            newprodukobj = models.DetailSubkonKirim(
+                KodeProduk=models.Produk.objects.get(KodeProduk=kodeproduk),
+                Jumlah=jumlah,
+                KeteranganACC=0,
+                Harga=0,
+                IDSubkonKirim=subkonkirimobj,
+            )
+            newprodukobj.save()
+
+        return redirect("view_subkonkirim")
+
+
+def update_subkonkirim(request, id):
+    datasjp = models.DetailSubkonKirim.objects.get(IDDetailSubkonKirim=id)
+
+    datasjp_getobj = models.SubkonKirim.objects.get(
+        IDSubkonKirim = datasjp.IDSubkonKirim.IDSubkonKirim
+    )
+    detailsjp_filtered = models.DetailSubkonKirim.objects.filter(
+        IDSubkonKirim = datasjp_getobj.IDSubkonKirim
+    )
+    if request.method == "GET":
+
+        return render(
+            request,
+            "produksi/update_subkonkirim.html",
+            {
+                "datasjp": datasjp_getobj,
+                "detailsjp": detailsjp_filtered,
+                "tanggal": datetime.strftime(datasjp_getobj.Tanggal, "%Y-%m-%d"),
+            },
+        )
+
+    else:
+        tanggal = request.POST["tanggal"]
+        kode_produk = request.POST.get("kodeproduk")
+        kode_produkobj = models.Produk.objects.get(KodeProduk=kode_produk)
+        jumlah = request.POST["jumlah"]
+
+        datasjp.KodeProduk = kode_produkobj
+        datasjp.Jumlah = jumlah
+        datasjp.KeteranganACC = datasjp.KeteranganACC
+        datasjp.Harga = datasjp.Harga
+        datasjp.IDSubkonKirim = datasjp.IDSubkonKirim
+        datasjp.IDSubkonKirim.Tanggal = tanggal
+        datasjp.save()
+        datasjp.IDSubkonKirim.save()
+
+        return redirect("view_subkonkirim")
+
+
+def delete_subkonkirim(request, id):
+    dataskk = models.DetailSubkonKirim.objects.get(IDDetailSubkonKirim=id)
+    dataskk.delete()
+    return redirect("view_subkonkirim")
+
+
 # Transaksi subkon masuk = nilai + pada kolom jumlah berarti masuk dari subkon ke pabrik, Transaksi nilai - pada kolom jumlah berarti keluar ke WIP
 def transaksi_subkon_terima(request):
-    produkobj = models.TransaksiSubkon.objects.all()
+    produkobj = models.TransaksiSubkon.objects.all().order_by("-Tanggal")
     for i in produkobj:
         i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
     return render(
@@ -1738,42 +1929,7 @@ def delete_transaksi_subkon_terima(request, id):
     return redirect("transaksi_subkon_terima")
 
 
-def track_spk(request, id):
-    dataartikel = models.Artikel.objects.all()
-    dataspk = models.SPK.objects.get(id=id)
-    datadetail = models.DetailSPK.objects.filter(NoSPK=dataspk.id)
-
-    # Data SPK terkait yang telah di request ke Gudang
-    transaksigudangobj = models.TransaksiGudang.objects.filter(
-        DetailSPK__NoSPK=dataspk.id, jumlah__gte=0
-    )
-
-    # Data SPK Terkait yang telah jadi di FG
-    transaksiproduksiobj = models.TransaksiProduksi.objects.filter(
-        DetailSPK__NoSPK=dataspk.id, Jenis="Mutasi"
-    )
-
-    # Data SPK Terkait yang telah dikirim
-    sppbobj = models.DetailSPPB.objects.filter(DetailSPK__NoSPK=dataspk.id)
-
-    if request.method == "GET":
-        tanggal = datetime.strftime(dataspk.Tanggal, "%Y-%m-%d")
-
-        return render(
-            request,
-            "produksi/trackingspk.html",
-            {
-                "data": dataartikel,
-                "dataspk": dataspk,
-                "datadetail": datadetail,
-                "tanggal": tanggal,
-                "transaksigudang": transaksigudangobj,
-                "transaksiproduksi": transaksiproduksiobj,
-                "transaksikeluar": sppbobj,
-            },
-        )
-
-
+# Penyesuaian
 def penyesuaian(request):
     datapenyesuaian = models.Penyesuaian.objects.all()
     return render(
@@ -1814,19 +1970,6 @@ def addpenyesuaian(request):
         return redirect("view_penyesuaian")
 
 
-def load_penyusun(request):
-    kodeartikel = request.GET.get("artikel")
-    penyusun = models.Penyusun.objects.filter(KodeArtikel=kodeartikel)
-
-    return render(request, "produksi/opsi_penyusun.html", {"penyusun": penyusun})
-
-
-def delete_penyesuaian(request, id):
-    datapenyesuaian = models.Penyesuaian.objects.get(IDPenyesuaian=id)
-    datapenyesuaian.delete()
-    return redirect("view_penyesuaian")
-
-
 def update_penyesuaian(request, id):
     datapenyesuaianobj = models.DetailKonversiProduksi.objects.get(
         IDDetailKonversiProduksi=id
@@ -1860,6 +2003,12 @@ def update_penyesuaian(request, id):
         detailkonversiobj.save()
         penyesuaianobj.save()
         return redirect("view_penyesuaian")
+
+
+def delete_penyesuaian(request, id):
+    datapenyesuaian = models.Penyesuaian.objects.get(IDPenyesuaian=id)
+    datapenyesuaian.delete()
+    return redirect("view_penyesuaian")
 
 
 def kalkulatorpenyesuaian(request):
@@ -2368,6 +2517,7 @@ def view_ksbb3(request):
 
         return render(request, "produksi/newview_ksbb.html",{'data':listdata,'saldo':saldoawal,'kodebarang':request.GET["kodebarang"]})
 
+
 def view_ksbj2(request):
     if len(request.GET) == 0:
         return render(request,'produksi/view_ksbj.html')
@@ -2564,6 +2714,7 @@ def view_ksbj2(request):
                     "tahun": tahun,
                 },
             )
+
 
 def kalkulatorpenyesuaian2(request):
     kodeproduk = models.Produk.objects.all()

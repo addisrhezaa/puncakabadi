@@ -10,7 +10,7 @@
     </li>
     <li class="nav-item">
       <a class="nav-link" data-toggle="collapse" href="#icons" aria-expanded="false" aria-controls="icons">
-        <i class="typcn typcn-compass menu-icon"></i>
+        <i class="typcn typcn-dropbox menu-icon"></i>
         <span class="menu-title">Transaksi Gudang</span>
         <i class="menu-arrow"></i>
       </a>
@@ -25,7 +25,7 @@
     </li>
     <li class="nav-item">
       <a class="nav-link" data-toggle="collapse" href="#produksi" aria-expanded="false" aria-controls="produksi">
-        <i class="typcn typcn-film menu-icon"></i>
+        <i class="typcn typcn-spanner menu-icon"></i>
         <span class="menu-title">Transaksi Produksi</span>
         <i class="menu-arrow"></i>
       </a>
@@ -39,60 +39,97 @@
       </div>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="/produksi/viewspk">
-        <i class="typcn typcn-chart-pie-outline menu-icon"></i>
-        <span class="menu-title">SP. Kerja</span>
+      <a class="nav-link" data-toggle="collapse" href="#suratperintah" aria-expanded="false" aria-controls="produksi">
+        <i class="typcn typcn-document menu-icon"></i>
+        <span class="menu-title">Surat Perintah</span>
+        <i class="menu-arrow"></i>
       </a>
+      <div class="collapse" id="suratperintah">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewspk">Kerja</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewsppb">Pengiriman Barang</a></li>
+        </ul>
+      </div>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="/produksi/viewsppb">
-        <i class="typcn typcn-th-small-outline menu-icon"></i>
-        <span class="menu-title">SP. Pengiriman Barang</span>
+      <a class="nav-link" data-toggle="collapse" href="#kartustok" aria-expanded="false" aria-controls="produksi">
+        <i class="typcn typcn-document-text menu-icon"></i>
+        <span class="menu-title">Kartu Stok</span>
+        <i class="menu-arrow"></i>
       </a>
+      <div class="collapse" id="kartustok">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewksbb">Bahan Baku</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewksbj">Barang Jadi</a></li>
+        </ul>
+      </div>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="/produksi/viewksbb">
-        <i class="typcn typcn-compass menu-icon"></i>
-        <span class="menu-title">KS Bahan Baku</span>
-
+      <a class="nav-link" data-toggle="collapse" href="#rekapitulasi" aria-expanded="false" aria-controls="produksi">
+        <i class="typcn typcn-folder menu-icon"></i>
+        <span class="menu-title">Rekapitulasi</span>
+        <i class="menu-arrow"></i>
       </a>
+      <div class="collapse" id="rekapitulasi">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewrekapbarang">Bahan Baku</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="">Barang Produksi</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="">Barang Rusak</a></li>
+        </ul>
+      </div>
     </li>
     <li class="nav-item">
-      <a class="nav-link" href="/produksi/viewksbj">
-        <i class="typcn typcn-user-add-outline menu-icon"></i>
-        <span class="menu-title">KS Barang Jadi</span>
-
+      <a class="nav-link" data-toggle="collapse" href="#subkon" aria-expanded="false" aria-controls="produksi">
+        <i class="typcn typcn-flow-merge menu-icon"></i>
+        <span class="menu-title">Sub-Kon</span>
+        <i class="menu-arrow"></i>
       </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="/produksi/viewrekapbarang">
-        <i class="typcn typcn-globe-outline menu-icon"></i>
-        <span class="menu-title">Rekap Bahan Baku</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{% url 'view_pemusnahan' %}">
-        <i class="typcn typcn-globe-outline menu-icon"></i>
-        <span class="menu-title">Pemusnahan</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{% url 'transaksi_subkon_terima' %}">
-        <i class="typcn typcn-globe-outline menu-icon"></i>
-        <span class="menu-title">Subkon Terima</span>
-      </a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{% url 'read_produksubkon' %}">
-        <i class="typcn typcn-globe-outline menu-icon"></i>
-        <span class="menu-title">Produk Subkon</span>
-      </a>
+      <div class="collapse" id="subkon">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/produksubkon">Subkon Produk</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/subkonkirim">Subkon Kirim</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/subkonterima">Subkon Terima</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="">KSBB</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="">KSBJ</a></li>
+        </ul>
+      </div>
     </li>
     <li class="nav-item">
       <a class="nav-link" href="{% url 'view_penyesuaian' %}">
-        <i class="typcn typcn-globe-outline menu-icon"></i>
+        <i class="typcn typcn-link menu-icon"></i>
         <span class="menu-title">Penyesuaian</span>
       </a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="collapse" href="#pemusnahan" aria-expanded="false" aria-controls="produksi">
+        <i class="typcn typcn-times menu-icon"></i>
+        <span class="menu-title">Pemusnahan</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="pemusnahan">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewpemusnahanbarang">Barang</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewpemusnahan">Artikel</a></li>
+        </ul>
+      </div>
     </li>
   </ul>
 </nav>

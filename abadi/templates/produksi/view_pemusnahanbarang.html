@@ -16,7 +16,7 @@
       <div class="card-body">
         <h4 class="card-title">Pemusnahan Produksi</h4>
         <div class="template-demo">
-          <a href="{% url 'add_pemusnahan' %}">
+          <a href="{% url 'add_pemusnahanbarang' %}">
             <button type="button" class="btn btn-success btn-icon-text">
               <i class="typcn typcn-plus btn-icon-prepend"></i>
               Tambah Data
@@ -38,13 +38,13 @@
               {% for i in dataproduksi %}
               <tr>
                 <td>{{i.Tanggal}}</td>
-                <td>{{i.KodeArtikel}}</td>
+                <td>{{i.KodeBahanBaku}}</td>
                 <td>{{i.lokasi.NamaLokasi}}</td>
                 <td>{{i.Jumlah}}</td>
                 <td>
                   <!-- Tambahkan panggilan ke fungsi JavaScript dengan menyediakan ID data -->
                   <div class="template-demo">
-                    <a href="{% url 'update_pemusnahan' i.IDPemusnahanArtikel %}">
+                    <a href="{% url 'update_pemusnahanbarang' i.IDPemusnahanBahanBaku %}">
                       <button type="button" class="btn btn-warning">
                         <i class="typcn typcn-edit"></i>
                       </button>
