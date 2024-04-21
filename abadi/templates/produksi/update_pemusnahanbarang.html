@@ -12,7 +12,7 @@
     <div class="card-body">
       <h4 class="card-title">Form Input Pemusnahan</h4>
       <div class="template-demo">
-        <a href="/produksi/viewpemusnahan">
+        <a href="/produksi/viewpemusnahanbarang">
           <button type="button" class="btn btn-light btn-icon-text">
             <i class="typcn typcn-chevron-left btn-icon-prepend"></i>
             Kembali
@@ -27,18 +27,19 @@
             <div class="form-group row">
               <label class="col-sm-3 col-form-label">Tanggal</label>
               <div class="col-sm-9">
-                <input type="date" class="form-control" name="tanggal" required id="tanggal" />
+                <input type="date" class="form-control" name="tanggal" required value="{{data.Tanggal}}" />
               </div>
             </div>
           </div>
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">Artikel</label>
+              <label class="col-sm-3 col-form-label">Produk</label>
               <div class="col-sm-9">
-                <input type="text" name="artikel" list="listartikel" class="form-control" required>
+                <input type="text" name="produk" list="listartikel" class="form-control" required
+                  value="{{data.KodeBahanBaku}}">
                 <datalist id="listartikel">
-                  {% for i in dataartikel %}
-                  <option value="{{i.KodeArtikel}}">{{i.NamaArtikel}}</option>
+                  {% for i in dataproduk %}
+                  <option value="{{i.KodeProduk}}">{{i.NamaProduk}}</option>
                   {% endfor %}
                 </datalist>
               </div>
@@ -52,7 +53,11 @@
               <div class="col-sm-9">
                 <select class="form-control" id="exampleSelectGender" name="nama_lokasi" required>
                   {% for i in nama_lokasi %}
+                  {% if i.IDLokasi == data.Lokasi.IDLokasi %}
+                  <option value="{{i.IDLokasi}}" selected>{{i.NamaLokasi}}</option>
+                  {% else %}
                   <option value="{{i.IDLokasi}}">{{i.NamaLokasi}}</option>
+                  {% endif %}
                   {% endfor %}
                 </select>
               </div>
@@ -62,7 +67,7 @@
             <div class="form-group row">
               <label class="col-sm-3 col-form-label">Jumlah</label>
               <div class="col-sm-9">
-                <input type="number" class="form-control" name="jumlah" required />
+                <input type="number" class="form-control" name="jumlah" required value="{{data.Jumlah}}" />
               </div>
             </div>
           </div>

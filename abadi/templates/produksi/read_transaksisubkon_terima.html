@@ -17,10 +17,9 @@
                     </a>
                 </div>
                 <div class="table-responsive pt-3">
-                    <table class="table table-bordered">
+                    <table class="table table-bordered" id="myTable">
                         <thead>
                             <tr>
-                                <th>No</th>
                                 <th>Tanggal</th>
                                 <th>Produk Subkon</th>
                                 <th>Artikel Peruntukan</th>
@@ -33,7 +32,6 @@
                         <tbody id="tableBody">
                             {% for i in produkobj %}
                             <tr>
-                                <td>{{forloop.counter}}</td>
                                 <td>{{i.Tanggal}}</td>
                                 <td>{{i.IDProdukSubkon.NamaProduk}}</td>
                                 <td>{{i.IDProdukSubkon.KodeArtikel}}</td>

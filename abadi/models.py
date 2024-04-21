@@ -173,6 +173,26 @@ class DetailSPPB(models.Model):
     def __str__(self):
         return f"{self.IDDetailSPPB} - {self.NoSPPB} - {self.DetailSPK} - {self.Jumlah}"
 
+class SubkonKirim(models.Model):
+    IDSubkonKirim = models.CharField(max_length=255, primary_key=True)
+    Tanggal = models.DateField()
+    supplier = models.CharField(max_length=255)
+    PO = models.CharField(max_length=255)
+
+    def __str__(self):
+        return str(str(self.IDSubkonKirim))
+
+
+class DetailSubkonKirim(models.Model):
+    IDDetailSubkonKirim = models.AutoField(primary_key=True)
+    IDSubkonKirim = models.ForeignKey(SubkonKirim, on_delete=models.CASCADE)
+    KodeProduk = models.ForeignKey(Produk, on_delete=models.CASCADE)
+    Jumlah = models.IntegerField()
+    KeteranganACC = models.BooleanField()
+    Harga = models.FloatField()
+
+    def __str__(self):
+        return str(self.IDSubkonKirim) + " " + str(self.KodeProduk)
 
 class TransaksiSubkon(models.Model):
     IDTransaksiSubkon = models.AutoField(primary_key=True)
@@ -182,7 +202,7 @@ class TransaksiSubkon(models.Model):
 
     def __str__(self):
         return str(self.IDProdukSubkon.NamaProduk) + "-" + str(self.Tanggal)
-
+    
 
 class SaldoAwalBahanBaku(models.Model):
     IDSaldoAwalBahanBaku = models.AutoField(primary_key=True)
