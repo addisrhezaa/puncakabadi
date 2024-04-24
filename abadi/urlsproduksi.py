@@ -46,10 +46,11 @@ urlpatterns = [
 
     path("viewksbb", viewsproduksi.view_ksbb3, name="view_ksbb"),
     path("viewksbb/<str:id>/<str:tanggal>", viewsproduksi.detailksbb, name="detail_ksbb"),
-
-    path("viewksbj", viewsproduksi.view_ksbj2, name="views_ksbj"),
+    path("viewksbj", viewsproduksi.view_ksbj2, name="view_ksbj"),
 
     path("viewrekapbarang", viewsproduksi.view_rekapbarang, name="view_rekapbarang"),
+    path("viewrekapproduksi", viewsproduksi.view_rekapproduksi, name="view_rekapproduksi"),
+    path("viewrekaprusak", viewsproduksi.view_rekaprusak, name="view_rekaprusak"),
 
     path("viewpemusnahan", viewsproduksi.view_pemusnahan, name="view_pemusnahan"),
     path("addpemusnahan", viewsproduksi.add_pemusnahan, name="add_pemusnahan"),
