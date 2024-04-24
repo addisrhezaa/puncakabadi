@@ -21,7 +21,7 @@
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Masukkan Nama Artikel"
+                                    <input required type="text" class="form-control" placeholder="Masukkan Nama Artikel"
                                         aria-label="Masukkan Nama Artikel" name="kodeartikel" value="{{kodeartikel}}">
                                 </div>
                             </div>
@@ -59,7 +59,7 @@
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <div class="input-group">
-                                    <input type="text" class="form-control" placeholder="Masukkan Nama Artikel"
+                                    <input required type="text" class="form-control" placeholder="Masukkan Nama Artikel"
                                         aria-label="Masukkan Nama Artikel" name="kodeartikel" list="listartikel">
                                     <datalist id="listartikel">
                                         {% for i in dataartikel %}
