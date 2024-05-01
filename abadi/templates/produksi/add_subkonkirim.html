@@ -11,15 +11,15 @@
   <div class="card">
     <div class="card-body">
       <form class="form-sample" action="" method="post">
-        <h4 class="card-title">Form Surat Jalan Pembelian</h4>
+        <h4 class="card-title">Form Input Subkon Kirim</h4>
         <br>
         {% csrf_token %}
         <div class="row">
           <div class="col-md-6">
             <div class="form-group row">
-              <label class="col-sm-3 col-form-label">No Surat jalan</label>
+              <label class="col-sm-3 col-form-label">No. SJ Subkon</label>
               <div class="col-sm-9">
-                <input type="text" class="form-control" name="nosuratjalan" placeholder="Masukkan Nomor Surat jalan"
+                <input type="text" class="form-control" name="nosuratjalan" placeholder="Masukkan Nomor Surat Jalan"
                   list="suratjalan" />
                 <datalist id="suratjalan">
                   {% for i in detailsk %}
@@ -57,7 +57,7 @@
           </div>
         </div>
 
-        <h4 class="card-title">Form Data Barang</h4>
+        <h4 class="card-title">Detail Subkon Kirim</h4>
 
         <div id="products"><!-- Div ini ditambahkan untuk menampung produk yang ditambahkan dinamis -->
           <div class="row">
@@ -83,12 +83,16 @@
                 </div>
               </div>
             </div>
-
-
           </div>
         </div>
-        <button type="button" class="btn btn-outline-info" onclick="addProduct()">Tambahkan produk</button>
-        <button type="submit" class="btn btn-primary ml-5">Submit</button>
+        <div class="row">
+          <div class="col-auto mr-auto">
+            <button type="button" class="btn btn-success" onclick="addProduct()"><i class="typcn typcn-plus btn-icon-prepend"></i>Tambahkan Produk</button>
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-primary ml-5">Submit</button>
+          </div>
+        </div>
       </form>
     </div>
   </div>
@@ -123,7 +127,7 @@
                                   </div>
                               </div>
                               <div class="col-md-1">
-                                  <button type="button" class="btn btn-danger " onclick="removeProduct(this)">Hapus</button>
+                                  <button type="button" class="btn btn-danger" onclick="removeProduct(this)"><i class="typcn typcn typcn-trash"></i></button>
                               </div>`;
     document.getElementById('products').appendChild(productDiv);
     // Hapus baris jika terlalu banyak
