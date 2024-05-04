@@ -157,6 +157,27 @@ def load_penyusun(request):
 def view_spk(request):
     dataspk = models.SPK.objects.all().order_by("-Tanggal")
 
+    for j in dataspk:
+        total_detail_spk = models.DetailSPK.objects.filter(NoSPK=j).values('KodeArtikel').annotate(total=Sum('Jumlah'))
+        is_lunas = True
+        for detail_spk in total_detail_spk:
+            kode_artikel = detail_spk['KodeArtikel']
+            total_requested = detail_spk['total']
+            
+            total_processed = models.DetailSPPB.objects.filter(DetailSPK__NoSPK=j, DetailSPK__KodeArtikel=kode_artikel).aggregate(total=Sum('Jumlah'))['total'] or 0
+            
+            if total_processed < total_requested:
+                is_lunas = False
+                break
+
+        if is_lunas:
+            j.Keterangan = "Lunas"
+            j.save()
+        else:
+            j.Keterangan = "Belum-Lunas"
+            j.save()            
+            
+
     return render(request, "produksi/view_spk.html", {"dataspk": dataspk})
 
 
@@ -310,6 +331,8 @@ def track_spk(request, id):
 # SPPB
 def view_sppb(request):
     datasppb = models.SPPB.objects.all().order_by("-Tanggal")
+    for i in datasppb:
+        i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
 
     return render(request, "produksi/view_sppb.html", {"datasppb": datasppb})
 
@@ -438,6 +461,8 @@ def view_mutasi(request):
     dataproduksi = models.TransaksiProduksi.objects.filter(Jenis="Mutasi").order_by(
         "-Tanggal", "KodeArtikel"
     )
+    for i in dataproduksi:
+        i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
 
     return render(request, "produksi/view_mutasi.html", {"dataproduksi": dataproduksi})
 
@@ -446,6 +471,8 @@ def view_produksi(request):
     dataproduksi = models.TransaksiProduksi.objects.filter(Jenis="Produksi").order_by(
         "-Tanggal", "KodeArtikel"
     )
+    for i in dataproduksi:
+        i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
 
     return render(
         request, "produksi/view_produksi.html", {"dataproduksi": dataproduksi}
@@ -664,6 +691,8 @@ def view_gudang(request):
     datagudang = models.TransaksiGudang.objects.filter(jumlah__gt=0).order_by(
         "-tanggal", "KodeProduk"
     )
+    for i in datagudang:
+        i.tanggal = i.tanggal.strftime("%d-%m-%Y")
 
     return render(request, "produksi/view_gudang.html", {"datagudang": datagudang})
 
@@ -674,6 +703,8 @@ def view_gudangretur(request):
     )
     for data in datagudang:
         data.retur = -data.jumlah
+    for i in datagudang:
+        i.tanggal = i.tanggal.strftime("%d-%m-%Y")
 
     return render(request, "produksi/view_gudangretur.html", {"datagudang": datagudang})
 
@@ -2042,7 +2073,7 @@ def update_produksubkon(request, id):
         keterangan_produk = request.POST["keterangan_produk"]
         produkobj.KodeProduk = kode_produk
         produkobj.NamaProduk = nama_produk
-        produkobj.unit = unit_produk
+        produkobj.Unit = unit_produk
         produkobj.keterangan = keterangan_produk
         produkobj.save()
         return redirect("read_produksubkon")
@@ -2059,6 +2090,8 @@ def delete_produksubkon(request, id):
 # Transaksi Subkon Kirim
 def view_subkonkirim(request):
     datasubkon = models.DetailSubkonKirim.objects.all().order_by("IDSubkonKirim__Tanggal")
+    for i in datasubkon:
+        i.IDSubkonKirim.Tanggal = i.IDSubkonKirim.Tanggal.strftime("%d-%m-%Y")
 
     return render(request, "produksi/view_subkonkirim.html", {"datasubkon": datasubkon})
 
@@ -2166,19 +2199,19 @@ def create_transaksi_subkon_terima(request):
             {"produksubkon": produksubkon},
         )
     else:
-        print(request.POST)
         tanggal = request.POST["tanggal"]
         nama_produk = request.POST["nama_produk"]
         jumlah = request.POST["jumlah"]
-        print(request.POST)
-        # produkobj = models.Produk.objects.filter(KodeProduk=kode_produk)
+
         try:
             produksubkonobj = models.ProdukSubkon.objects.get(
                 IDProdukSubkon=nama_produk
             )
+
         except models.Artikel.DoesNotExist:
             messages.error(request, "Kode Produk Subkon tidak ditemukan")
             return redirect("update_transaksi_subkon_terima")
+        
         new_produk = models.TransaksiSubkon(
             Tanggal=tanggal,
             Jumlah=jumlah,
@@ -2199,12 +2232,13 @@ def update_transaksi_subkon_terima(request, id):
             {"produkobj": produkobj, "produksubkon": produksubkon},
         )
     else:
-        jumlah = request.POST["kode_produk"]
+        jumlah = request.POST["jumlah"]
         nama_produk = request.POST["nama_produk"]
-        tanggal = request.POST["unit_produk"]
+        idproduk = models.ProdukSubkon.objects.get(NamaProduk=nama_produk)
+        tanggal = request.POST["tanggal"]
         try:
             produksubkonobj = models.ProdukSubkon.objects.get(
-                IDProdukSubkon=nama_produk
+                IDProdukSubkon=idproduk.IDProdukSubkon
             )
         except models.Artikel.DoesNotExist:
             messages.error(request, "Kode Produk Subkon tidak ditemukan")
@@ -2218,7 +2252,6 @@ def update_transaksi_subkon_terima(request, id):
 
 
 def delete_transaksi_subkon_terima(request, id):
-    print(id)
     produkobj = models.TransaksiSubkon.objects.get(IDTransaksiSubkon=id)
     produkobj.delete()
     messages.success(request, "Data Berhasil dihapus")
@@ -2619,7 +2652,6 @@ def view_ksbb3(request):
         else:
             sekarang = datetime.now()
             tahun = sekarang.year
-        # print(produk)
 
         tanggal_mulai = datetime(year=tahun, month=1, day=1)
         tanggal_akhir = datetime(year=tahun, month=12, day=31)
@@ -3339,3 +3371,414 @@ def kalkulatorpenyesuaian2(request):
                 "datakuantitas" : datakuantitasperhitungan
             },
         )
+
+
+# Saldo Awal Bahan Baku
+def view_saldobahan(request):
+    dataproduksi = models.PemusnahanBahanBaku.objects.all().order_by("-Tanggal")
+    for i in dataproduksi:
+        i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
+
+    return render(
+        request, "produksi/view_pemusnahanbarang.html", {"dataproduksi": dataproduksi}
+    )
+
+
+def add_saldobahan(request):
+    databarang = models.Produk.objects.all()
+    datalokasi = models.Lokasi.objects.all()
+    if request.method == "GET":
+        return render(
+            request,
+            "produksi/add_pemusnahanbarang.html",
+            {"nama_lokasi": datalokasi, "databarang": databarang},
+        )
+    else:
+        print(request.POST)
+        # Get object
+        kodeproduk = request.POST["produk"]
+        lokasi = request.POST["nama_lokasi"]
+        jumlah = request.POST["jumlah"]
+        tanggal = request.POST["tanggal"]
+        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
+        lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
+        pemusnahanobj = models.PemusnahanBahanBaku(
+            Tanggal=tanggal, Jumlah=jumlah, KodeBahanBaku=produkobj, lokasi=lokasiobj
+        )
+        pemusnahanobj.save()
+        return redirect("view_pemusnahanbarang")
+
+
+def update_saldobahan(request, id):
+    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+    dataobj.Tanggal = dataobj.Tanggal.strftime("%Y-%m-%d")
+    lokasiobj = models.Lokasi.objects.all()
+    if request.method == "GET":
+
+        return render(
+            request,
+            "produksi/update_pemusnahanbarang.html",
+            {"data": dataobj, "nama_lokasi": lokasiobj},
+        )
+
+    else:
+        kodeproduk = request.POST["produk"]
+        lokasi = request.POST["nama_lokasi"]
+        jumlah = request.POST["jumlah"]
+        tanggal = request.POST["tanggal"]
+        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
+        lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
+
+        dataobj.Tanggal = tanggal
+        dataobj.Jumlah = jumlah
+        dataobj.KodeBahanBaku = produkobj
+        dataobj.lokasi = lokasiobj
+
+        dataobj.save()
+        return redirect("view_pemusnahanbarang")
+
+
+def delete_saldobahan(request, id):
+    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+
+    dataobj.delete()
+    return redirect(view_pemusnahan)
+
+
+# Saldo Awal Artikel
+def view_saldoartikel(request):
+    dataproduksi = models.PemusnahanBahanBaku.objects.all().order_by("-Tanggal")
+    for i in dataproduksi:
+        i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
+
+    return render(
+        request, "produksi/view_pemusnahanbarang.html", {"dataproduksi": dataproduksi}
+    )
+
+
+def add_saldoartikel(request):
+    databarang = models.Produk.objects.all()
+    datalokasi = models.Lokasi.objects.all()
+    if request.method == "GET":
+        return render(
+            request,
+            "produksi/add_pemusnahanbarang.html",
+            {"nama_lokasi": datalokasi, "databarang": databarang},
+        )
+    else:
+        print(request.POST)
+        # Get object
+        kodeproduk = request.POST["produk"]
+        lokasi = request.POST["nama_lokasi"]
+        jumlah = request.POST["jumlah"]
+        tanggal = request.POST["tanggal"]
+        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
+        lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
+        pemusnahanobj = models.PemusnahanBahanBaku(
+            Tanggal=tanggal, Jumlah=jumlah, KodeBahanBaku=produkobj, lokasi=lokasiobj
+        )
+        pemusnahanobj.save()
+        return redirect("view_pemusnahanbarang")
+
+
+def update_saldoartikel(request, id):
+    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+    dataobj.Tanggal = dataobj.Tanggal.strftime("%Y-%m-%d")
+    lokasiobj = models.Lokasi.objects.all()
+    if request.method == "GET":
+
+        return render(
+            request,
+            "produksi/update_pemusnahanbarang.html",
+            {"data": dataobj, "nama_lokasi": lokasiobj},
+        )
+
+    else:
+        kodeproduk = request.POST["produk"]
+        lokasi = request.POST["nama_lokasi"]
+        jumlah = request.POST["jumlah"]
+        tanggal = request.POST["tanggal"]
+        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
+        lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
+
+        dataobj.Tanggal = tanggal
+        dataobj.Jumlah = jumlah
+        dataobj.KodeBahanBaku = produkobj
+        dataobj.lokasi = lokasiobj
+
+        dataobj.save()
+        return redirect("view_pemusnahanbarang")
+
+
+def delete_saldoartikel(request, id):
+    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+
+    dataobj.delete()
+    return redirect(view_pemusnahan)
+
+
+# Saldo Awal Subkon
+def view_saldosubkon(request):
+    dataproduksi = models.PemusnahanBahanBaku.objects.all().order_by("-Tanggal")
+    for i in dataproduksi:
+        i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
+
+    return render(
+        request, "produksi/view_pemusnahanbarang.html", {"dataproduksi": dataproduksi}
+    )
+
+
+def add_saldosubkon(request):
+    databarang = models.Produk.objects.all()
+    datalokasi = models.Lokasi.objects.all()
+    if request.method == "GET":
+        return render(
+            request,
+            "produksi/add_pemusnahanbarang.html",
+            {"nama_lokasi": datalokasi, "databarang": databarang},
+        )
+    else:
+        print(request.POST)
+        # Get object
+        kodeproduk = request.POST["produk"]
+        lokasi = request.POST["nama_lokasi"]
+        jumlah = request.POST["jumlah"]
+        tanggal = request.POST["tanggal"]
+        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
+        lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
+        pemusnahanobj = models.PemusnahanBahanBaku(
+            Tanggal=tanggal, Jumlah=jumlah, KodeBahanBaku=produkobj, lokasi=lokasiobj
+        )
+        pemusnahanobj.save()
+        return redirect("view_pemusnahanbarang")
+
+
+def update_saldosubkon(request, id):
+    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+    dataobj.Tanggal = dataobj.Tanggal.strftime("%Y-%m-%d")
+    lokasiobj = models.Lokasi.objects.all()
+    if request.method == "GET":
+
+        return render(
+            request,
+            "produksi/update_pemusnahanbarang.html",
+            {"data": dataobj, "nama_lokasi": lokasiobj},
+        )
+
+    else:
+        kodeproduk = request.POST["produk"]
+        lokasi = request.POST["nama_lokasi"]
+        jumlah = request.POST["jumlah"]
+        tanggal = request.POST["tanggal"]
+        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
+        lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
+
+        dataobj.Tanggal = tanggal
+        dataobj.Jumlah = jumlah
+        dataobj.KodeBahanBaku = produkobj
+        dataobj.lokasi = lokasiobj
+
+        dataobj.save()
+        return redirect("view_pemusnahanbarang")
+
+
+def delete_saldosubkon(request, id):
+    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+
+    dataobj.delete()
+    return redirect(view_pemusnahan)
+
+
+# Kartu Stok Subkon
+def view_ksbbsubkon(request):
+    kodeproduk = models.Produk.objects.all()
+    if len(request.GET) == 0:
+        return render(request, "produksi/newview_ksbb.html", {"kodeprodukobj": kodeproduk})
+    else:
+        """
+        1. Cari 
+        """
+        try:
+            produk = models.Produk.objects.get(KodeProduk=request.GET["kodebarang"])
+            nama = produk.NamaProduk
+            satuan = produk.unit
+        except:
+            messages.error(request, "Data Produk tidak ditemukan")
+            return redirect("view_ksbb")
+        
+        if request.GET["periode"]:
+            tahun = int(request.GET["periode"])
+        else:
+            sekarang = datetime.now()
+            tahun = sekarang.year
+
+        tanggal_mulai = datetime(year=tahun, month=1, day=1)
+        tanggal_akhir = datetime(year=tahun, month=12, day=31)
+
+        # Menceri data transaksi gudang dengan kode 
+        datagudang = models.TransaksiGudang.objects.filter(
+            KodeProduk=produk, tanggal__range=(tanggal_mulai, tanggal_akhir)
+        )
+
+        datakirim = models.DetailSubkonKirim.objects.filter(
+            KodeProduk=produk, IDSubkonKirim__Tanggal__range=(tanggal_mulai, tanggal_akhir),
+        )
+
+        ''' TANGGAL SECTION '''
+        tanggalmasuk = datagudang.values_list("tanggal", flat=True)
+        tanggalkeluar = datakirim.values_list("IDSubkonKirim__Tanggal", flat=True)
+
+        listtanggal = sorted(
+            list(set(tanggalmasuk.union(tanggalkeluar)))
+        )
+
+        ''' SALDO AWAL SECTION '''
+        try:
+            saldoawal = models.SaldoAwalBahanBaku.objects.get(
+                IDBahanBaku=request.GET["kodebarang"],
+                IDLokasi=1,
+                Tanggal__range=(tanggal_mulai, tanggal_akhir),
+            )
+            saldo = saldoawal.Jumlah
+            saldoawal.Tanggal = saldoawal.Tanggal.strftime("%Y-%m-%d")
+
+        except models.SaldoAwalBahanBaku.DoesNotExist:
+            saldo = 0
+            saldoawal = None
+
+        sisa = saldo
+
+        ''' PENGOLAHAN DATA '''
+        listdata =[]
+        for i in listtanggal:
+            data = {
+                'Tanggal': None,
+                'Masuk' : None,
+                'Keluar' : None,
+                'Sisa' : None
+            }
+
+            data['Tanggal'] = i.strftime("%Y-%m-%d")
+            # Data Masuk
+            masuk = 0
+            datamasuk = datagudang.filter(tanggal=i)
+            for m in datamasuk:
+                masuk += m.jumlah
+            sisa  += masuk
+            data['Masuk'] = masuk
+            
+            # Data Keluar
+            keluar = 0
+            datakeluar = datakirim.filter(IDSubkonKirim__Tanggal = i)
+            for k in datakeluar:
+                keluar += k.Jumlah
+            sisa -= keluar
+            data['Keluar'] = keluar
+
+            data['Sisa'] = sisa
+            listdata.append(data)
+
+        return render(request, "produksi/view_ksbb.html",{'data':listdata,'saldo':saldoawal,'kodebarang':request.GET["kodebarang"],"nama": nama,"satuan": satuan,})
+    
+
+def view_ksbjsubkon(request):
+    kodeproduk = models.ProdukSubkon.objects.all()
+    if len(request.GET) == 0:
+        return render(request, "produksi/view_ksbj.html", {"kodeprodukobj": kodeproduk})
+    else:
+        """
+        1. Cari 
+        """
+        try:
+            produk = models.ProdukSubkon.objects.get(NamaProduk=request.GET["kodebarang"])
+            nama = produk.NamaProduk
+            satuan = produk.Unit
+        except:
+            messages.error(request, "Data Produk Subkon tidak ditemukan")
+            return redirect("view_ksbbsubkon")
+        
+        idartikel = produk.KodeArtikel
+        artikel = models.Artikel.objects.get(KodeArtikel=idartikel)
+        
+        if request.GET["periode"]:
+            tahun = int(request.GET["periode"])
+        else:
+            sekarang = datetime.now()
+            tahun = sekarang.year
+
+        tanggal_mulai = datetime(year=tahun, month=1, day=1)
+        tanggal_akhir = datetime(year=tahun, month=12, day=31)
+        
+        # Menceri data transaksi gudang dengan kode 
+        dataterima = models.TransaksiSubkon.objects.filter(
+            IDProdukSubkon=produk.IDProdukSubkon, Tanggal__range=(tanggal_mulai, tanggal_akhir)
+        )
+
+        # Kode Artikel yang di susun oleh bahan baku 
+        penyusun_produk = (
+            models.ProdukSubkon.objects.filter(NamaProduk=request.GET["kodebarang"])
+            .values_list("KodeArtikel", flat=True)
+            .distinct()
+        )
+
+        dataproduksi = models.TransaksiProduksi.objects.filter(
+            KodeArtikel__id__in=penyusun_produk,
+            Jenis="Mutasi",
+            Tanggal__range=(tanggal_mulai, tanggal_akhir),
+        )
+
+        # ''' TANGGAL SECTION '''
+        tanggalmasuk = dataterima.values_list("Tanggal", flat=True)
+        tanggalkeluar = dataproduksi.values_list("Tanggal", flat=True)
+        # tanggalpemusnahan = pemusnahanobj.values_list("Tanggal", flat=True)
+
+        listtanggal = sorted(list(set(tanggalmasuk.union(tanggalkeluar))))
+
+        ''' SALDO AWAL SECTION '''
+        try:
+            saldoawal = models.SaldoAwalSubkon.objects.get(
+                IDProdukSubkon=produk.IDProdukSubkon,
+                Tanggal__range=(tanggal_mulai, tanggal_akhir),
+            )
+            saldo = saldoawal.Jumlah
+            saldoawal.Tanggal = saldoawal.Tanggal.strftime("%Y-%m-%d")
+
+        except models.SaldoAwalSubkon.DoesNotExist:
+            saldo = 0
+            saldoawal = None
+
+        sisa = saldo
+
+        # ''' PENGOLAHAN DATA '''
+        listdata = [ ]
+        for i in listtanggal:
+            # Data Models
+            data = {
+                'Tanggal': None,
+                'Masuk' : None,
+                'Keluar' : None,
+                'Sisa' : None
+                
+            }
+            data['Tanggal'] = i.strftime("%Y-%m-%d")
+            # Data Masuk
+            masuk = 0
+            datamasuk = dataterima.filter(Tanggal=i)
+            for m in datamasuk:
+                masuk += m.Jumlah
+            sisa  += masuk
+            data['Masuk'] = masuk
+            
+            # Data Keluar
+            datakeluar = dataproduksi.filter(Tanggal = i)
+            keluar = 0
+            for k in datakeluar:
+                keluar += k.Jumlah
+            sisa -= keluar
+            data['Keluar'] = keluar
+
+            data['Sisa'] = sisa
+
+            listdata.append(data)
+
+        return render(request, "produksi/view_ksbj.html",{"data":listdata,'saldo':saldoawal,"nama": nama,"satuan": satuan,"artikel":artikel})

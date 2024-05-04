@@ -37,11 +37,10 @@
             <div class="form-group row">
               <label class="col-sm-3 col-form-label">Nama Produk</label>
               <div class="col-sm-9">
-                <input type="text" class="form-control" name="nama_produ" required list="produksubkon" />
+                <input type="text" class="form-control" name="nama_produk" required list="produksubkon" />
                 <datalist id="produksubkon">
                   {% for i in produksubkon %}
-                  <option data-value="{{ i.IDProdukSubkon }}" value="{{i.KodeArtikel}} -{{ i.NamaProduk }} "></option>
-                  <input type="text" name="nama_produk" hidden value="{{i.IDProdukSubkon}}">
+                  <option value="{{ i.IDProdukSubkon }}">{{i.KodeArtikel}} - {{ i.NamaProduk }}</option>
                   {%endfor %}
                 </datalist>
               </div>
