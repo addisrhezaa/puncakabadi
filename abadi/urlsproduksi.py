@@ -76,6 +76,9 @@ urlpatterns = [
     path("updatetransaksisubkonterima/<str:id>",viewsproduksi.update_transaksi_subkon_terima,name="update_transaksi_subkon_terima",),
     path("deletetransaksisubkonterima/<str:id>",viewsproduksi.delete_transaksi_subkon_terima,name="delete_transaksi_subkon_terima",),
 
+    path("viewksbbsubkon", viewsproduksi.view_ksbbsubkon, name="view_ksbbsubkon"),
+    path("viewksbjsubkon", viewsproduksi.view_ksbjsubkon, name="view_ksbjsubkon"),
+
     path("penyesuaian", viewsproduksi.penyesuaian, name="view_penyesuaian"),
     path("addpenyesuaian", viewsproduksi.addpenyesuaian, name="addpenyesuaian"),
     path("deletepenyesuaian/<str:id>",viewsproduksi.delete_penyesuaian,name="delete_penyesuaian",),
