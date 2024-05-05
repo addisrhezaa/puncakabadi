@@ -39,49 +39,19 @@
       </div>
     </li>
     <li class="nav-item">
-      <a class="nav-link" data-toggle="collapse" href="#suratperintah" aria-expanded="false" aria-controls="produksi">
-        <i class="typcn typcn-document menu-icon"></i>
-        <span class="menu-title">Surat Perintah</span>
+      <a class="nav-link" data-toggle="collapse" href="#kartustok" aria-expanded="false" aria-controls="produksi">
+        <i class="typcn typcn-document-text menu-icon"></i>
+        <span class="menu-title">Kartu Stok Produksi</span>
         <i class="menu-arrow"></i>
       </a>
-      <div class="collapse" id="suratperintah">
+      <div class="collapse" id="kartustok">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="/produksi/viewspk">Kerja</a></li>
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewksbb">Bahan Baku</a></li>
         </ul>
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="/produksi/viewsppb">Pengiriman Barang</a></li>
-        </ul>
-      </div>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-toggle="collapse" href="#subkon" aria-expanded="false" aria-controls="produksi">
-        <i class="typcn typcn-flow-merge menu-icon"></i>
-        <span class="menu-title">Sub-Kon</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="subkon">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="/produksi/produksubkon">Produk</a></li>
-        </ul>
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="/produksi/subkonkirim">Kirim</a></li>
-        </ul>
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="/produksi/subkonterima">Terima</a></li>
-        </ul>
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="/produksi/viewksbbsubkon">KSBB</a></li>
-        </ul>
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="/produksi/viewksbjsubkon">KSBJ</a></li>
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewksbj">Barang Jadi</a></li>
         </ul>
       </div>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" href="{% url 'view_penyesuaian' %}">
-        <i class="typcn typcn-link menu-icon"></i>
-        <span class="menu-title">Penyesuaian</span>
-      </a>
     </li>
     <li class="nav-item">
       <a class="nav-link" data-toggle="collapse" href="#pemusnahan" aria-expanded="false" aria-controls="pemusnahan">
@@ -95,21 +65,6 @@
         </ul>
         <ul class="nav flex-column sub-menu">
           <li class="nav-item"> <a class="nav-link" href="/produksi/viewpemusnahan">Artikel</a></li>
-        </ul>
-      </div>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-toggle="collapse" href="#kartustok" aria-expanded="false" aria-controls="produksi">
-        <i class="typcn typcn-document-text menu-icon"></i>
-        <span class="menu-title">Kartu Stok</span>
-        <i class="menu-arrow"></i>
-      </a>
-      <div class="collapse" id="kartustok">
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="/produksi/viewksbb">Bahan Baku</a></li>
-        </ul>
-        <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="/produksi/viewksbj">Barang Jadi</a></li>
         </ul>
       </div>
     </li>
@@ -132,6 +87,54 @@
       </div>
     </li>
     <li class="nav-item">
+      <a class="nav-link" data-toggle="collapse" href="#subkon" aria-expanded="false" aria-controls="produksi">
+        <i class="typcn typcn-flow-merge menu-icon"></i>
+        <span class="menu-title">Sub-Kon</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="subkon">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/produksubkon">Produk</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/subkonkirim">Kirim</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/subkonterima">Terima</a></li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="collapse" href="#kartustoksubkon" aria-expanded="false" aria-controls="produksi">
+        <i class="typcn typcn-document-text menu-icon"></i>
+        <span class="menu-title">Kartu Stok Subkon</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="kartustoksubkon">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/ksbbsubkon">Bahan Baku</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/ksbjsubkon">Barang Jadi</a></li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="collapse" href="#suratperintah" aria-expanded="false" aria-controls="produksi">
+        <i class="typcn typcn-document menu-icon"></i>
+        <span class="menu-title">Surat Perintah</span>
+        <i class="menu-arrow"></i>
+      </a>
+      <div class="collapse" id="suratperintah">
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewspk">Kerja</a></li>
+        </ul>
+        <ul class="nav flex-column sub-menu">
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewsppb">Pengiriman Barang</a></li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item">
       <a class="nav-link" data-toggle="collapse" href="#saldoawal" aria-expanded="false" aria-controls="produksi">
         <i class="typcn typcn-shopping-bag menu-icon"></i>
         <span class="menu-title">Saldo Awal</span>
@@ -139,15 +142,21 @@
       </a>
       <div class="collapse" id="saldoawal">
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="">Bahan Baku</a></li>
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewsaldobahan">Bahan Baku</a></li>
         </ul>
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="">Artikel</a></li>
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewsaldoartikel">Artikel</a></li>
         </ul>
         <ul class="nav flex-column sub-menu">
-          <li class="nav-item"> <a class="nav-link" href="">Bahan Subkon</a></li>
+          <li class="nav-item"> <a class="nav-link" href="/produksi/viewsaldosubkon">Produk Subkon</a></li>
         </ul>
       </div>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" href="{% url 'view_penyesuaian' %}">
+        <i class="typcn typcn-link menu-icon"></i>
+        <span class="menu-title">Penyesuaian</span>
+      </a>
     </li>
   </ul>
 </nav>

@@ -2634,7 +2634,7 @@ def detailksbb(request, id, tanggal):
 def view_ksbb3(request):
     kodeproduk = models.Produk.objects.all()
     if len(request.GET) == 0:
-        return render(request, "produksi/newview_ksbb.html", {"kodeprodukobj": kodeproduk})
+        return render(request, "produksi/view_ksbb.html", {"kodeprodukobj": kodeproduk})
     else:
         """
         1. Cari 
@@ -2772,8 +2772,12 @@ def view_ksbb3(request):
                 total = datakeluar.filter(KodeArtikel__id = j).aggregate(total = Sum('Jumlah'))
                 indexartikel = listartikelmaster.index(artikelkeluarobj)
                 filtered_data = [d for d in listartikelmaster[indexartikel].tanggalversi if d <= i]
-
                 filtered_data.sort(reverse=True)
+
+                if not filtered_data:
+                    filtered_data = [d for d in listartikelmaster[indexartikel].tanggalversi]
+                    print(f'Data versi Artikel {artikelkeluarobj} Penyusun < {i} Tidak ditemukan')
+
                 print(filtered_data)
                 tanggalversiterdekat = max(filtered_data)
                 indextanggalterdekat = list(listartikelmaster[indexartikel].tanggalversi).index(tanggalversiterdekat)
@@ -2830,13 +2834,13 @@ def view_ksbb3(request):
             data['Sisa'] = datamodelssisa
             listdata.append(data)
 
-        return render(request, "produksi/newview_ksbb.html",{'data':listdata,'saldo':saldoawal,'kodebarang':request.GET["kodebarang"],"nama": nama,"satuan": satuan,})
+        return render(request, "produksi/view_ksbb.html",{'data':listdata,'saldo':saldoawal,'kodebarang':request.GET["kodebarang"],"nama": nama,"satuan": satuan,})
 
 
 def view_ksbj2(request):
     dataartikel = models.Artikel.objects.all()
     if len(request.GET) == 0:
-        return render(request,'produksi/newview_ksbj.html', {"dataartikel": dataartikel})
+        return render(request,'produksi/view_ksbj.html', {"dataartikel": dataartikel})
     else :
         kodeartikel =  request.GET['kodeartikel']
         try:
@@ -2937,7 +2941,7 @@ def view_ksbj2(request):
 
             return render(
                 request,
-                "produksi/newview_ksbj.html",
+                "produksi/view_ksbj.html",
                 {
                     "data": data,
                     "kodeartikel": kodeartikel,
@@ -3007,7 +3011,7 @@ def view_ksbj2(request):
             
             return render(
                 request,
-                "produksi/newview_ksbj.html",
+                "produksi/view_ksbj.html",
                 {
                     "data": data,
                     "kodeartikel": kodeartikel,
@@ -3375,12 +3379,12 @@ def kalkulatorpenyesuaian2(request):
 
 # Saldo Awal Bahan Baku
 def view_saldobahan(request):
-    dataproduksi = models.PemusnahanBahanBaku.objects.all().order_by("-Tanggal")
-    for i in dataproduksi:
+    dataproduk = models.SaldoAwalBahanBaku.objects.all().order_by("-Tanggal")
+    for i in dataproduk:
         i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
 
     return render(
-        request, "produksi/view_pemusnahanbarang.html", {"dataproduksi": dataproduksi}
+        request, "produksi/view_saldobahan.html", {"dataproduk": dataproduk}
     )
 
 
@@ -3390,210 +3394,198 @@ def add_saldobahan(request):
     if request.method == "GET":
         return render(
             request,
-            "produksi/add_pemusnahanbarang.html",
+            "produksi/add_saldobahan.html",
             {"nama_lokasi": datalokasi, "databarang": databarang},
         )
     else:
-        print(request.POST)
-        # Get object
         kodeproduk = request.POST["produk"]
         lokasi = request.POST["nama_lokasi"]
         jumlah = request.POST["jumlah"]
+        harga = request.POST["harga"]
         tanggal = request.POST["tanggal"]
         produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
         lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
-        pemusnahanobj = models.PemusnahanBahanBaku(
-            Tanggal=tanggal, Jumlah=jumlah, KodeBahanBaku=produkobj, lokasi=lokasiobj
-        )
+        pemusnahanobj = models.SaldoAwalBahanBaku(
+            Tanggal=tanggal, Jumlah=jumlah, IDBahanBaku=produkobj, IDLokasi=lokasiobj, Harga=harga)
         pemusnahanobj.save()
-        return redirect("view_pemusnahanbarang")
+        return redirect("view_saldobahan")
 
 
 def update_saldobahan(request, id):
-    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+    databarang = models.Produk.objects.all()
+    dataobj = models.SaldoAwalBahanBaku.objects.get(IDSaldoAwalBahanBaku=id)
     dataobj.Tanggal = dataobj.Tanggal.strftime("%Y-%m-%d")
     lokasiobj = models.Lokasi.objects.all()
     if request.method == "GET":
-
         return render(
             request,
-            "produksi/update_pemusnahanbarang.html",
-            {"data": dataobj, "nama_lokasi": lokasiobj},
+            "produksi/update_saldobahan.html",
+            {"data": dataobj, "nama_lokasi": lokasiobj,"databarang": databarang},
         )
 
     else:
         kodeproduk = request.POST["produk"]
         lokasi = request.POST["nama_lokasi"]
         jumlah = request.POST["jumlah"]
+        harga = request.POST["harga"]
         tanggal = request.POST["tanggal"]
         produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
         lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
 
         dataobj.Tanggal = tanggal
         dataobj.Jumlah = jumlah
-        dataobj.KodeBahanBaku = produkobj
-        dataobj.lokasi = lokasiobj
-
+        dataobj.IDBahanBaku = produkobj
+        dataobj.IDLokasi = lokasiobj
+        dataobj.Harga = harga
         dataobj.save()
-        return redirect("view_pemusnahanbarang")
+        return redirect("view_saldobahan")
 
 
 def delete_saldobahan(request, id):
-    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+    dataobj = models.SaldoAwalBahanBaku.objects.get(IDSaldoAwalBahanBaku=id)
 
     dataobj.delete()
-    return redirect(view_pemusnahan)
+    return redirect(view_saldobahan)
 
 
 # Saldo Awal Artikel
 def view_saldoartikel(request):
-    dataproduksi = models.PemusnahanBahanBaku.objects.all().order_by("-Tanggal")
-    for i in dataproduksi:
+    dataartikel = models.SaldoAwalArtikel.objects.all().order_by("-Tanggal")
+    for i in dataartikel:
         i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
 
     return render(
-        request, "produksi/view_pemusnahanbarang.html", {"dataproduksi": dataproduksi}
+        request, "produksi/view_saldoartikel.html", {"dataartikel": dataartikel}
     )
 
 
 def add_saldoartikel(request):
-    databarang = models.Produk.objects.all()
+    dataartikel = models.Artikel.objects.all()
     datalokasi = models.Lokasi.objects.all()
     if request.method == "GET":
         return render(
             request,
-            "produksi/add_pemusnahanbarang.html",
-            {"nama_lokasi": datalokasi, "databarang": databarang},
+            "produksi/add_saldoartikel.html",
+            {"nama_lokasi": datalokasi, "dataartikel": dataartikel},
         )
     else:
-        print(request.POST)
-        # Get object
-        kodeproduk = request.POST["produk"]
+        artikel = request.POST["artikel"]
         lokasi = request.POST["nama_lokasi"]
         jumlah = request.POST["jumlah"]
         tanggal = request.POST["tanggal"]
-        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
+        artikelobj = models.Artikel.objects.get(KodeArtikel=artikel)
         lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
-        pemusnahanobj = models.PemusnahanBahanBaku(
-            Tanggal=tanggal, Jumlah=jumlah, KodeBahanBaku=produkobj, lokasi=lokasiobj
+        pemusnahanobj = models.SaldoAwalArtikel(
+            Tanggal=tanggal, Jumlah=jumlah, IDArtikel=artikelobj, IDLokasi=lokasiobj
         )
         pemusnahanobj.save()
-        return redirect("view_pemusnahanbarang")
+        return redirect("view_saldoartikel")
 
 
 def update_saldoartikel(request, id):
-    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+    dataartikel = models.Artikel.objects.all()
+    dataobj = models.SaldoAwalArtikel.objects.get(IDSaldoAwalBahanBaku=id)
     dataobj.Tanggal = dataobj.Tanggal.strftime("%Y-%m-%d")
     lokasiobj = models.Lokasi.objects.all()
     if request.method == "GET":
 
         return render(
             request,
-            "produksi/update_pemusnahanbarang.html",
-            {"data": dataobj, "nama_lokasi": lokasiobj},
+            "produksi/update_saldoartikel.html",
+            {"data": dataobj, "nama_lokasi": lokasiobj, "dataartikel": dataartikel},
         )
 
     else:
-        kodeproduk = request.POST["produk"]
+        artikel = request.POST["artikel"]
         lokasi = request.POST["nama_lokasi"]
         jumlah = request.POST["jumlah"]
         tanggal = request.POST["tanggal"]
-        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
+
+        artikelobj = models.Artikel.objects.get(KodeArtikel=artikel)
         lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
 
         dataobj.Tanggal = tanggal
         dataobj.Jumlah = jumlah
-        dataobj.KodeBahanBaku = produkobj
-        dataobj.lokasi = lokasiobj
+        dataobj.IDArtikel = artikelobj
+        dataobj.IDLokasi= lokasiobj
 
         dataobj.save()
-        return redirect("view_pemusnahanbarang")
+        return redirect("view_saldoartikel")
 
 
 def delete_saldoartikel(request, id):
-    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+    dataobj = models.SaldoAwalArtikel.objects.get(IDSaldoAwalBahanBaku=id)
 
     dataobj.delete()
-    return redirect(view_pemusnahan)
+    return redirect(view_saldoartikel)
 
 
 # Saldo Awal Subkon
 def view_saldosubkon(request):
-    dataproduksi = models.PemusnahanBahanBaku.objects.all().order_by("-Tanggal")
-    for i in dataproduksi:
+    datasubkon = models.SaldoAwalSubkon.objects.all().order_by("-Tanggal")
+    for i in datasubkon:
         i.Tanggal = i.Tanggal.strftime("%d-%m-%Y")
 
     return render(
-        request, "produksi/view_pemusnahanbarang.html", {"dataproduksi": dataproduksi}
+        request, "produksi/view_saldosubkon.html", {"datasubkon": datasubkon}
     )
 
 
 def add_saldosubkon(request):
-    databarang = models.Produk.objects.all()
-    datalokasi = models.Lokasi.objects.all()
+    datasubkon = models.ProdukSubkon.objects.all()
     if request.method == "GET":
         return render(
             request,
-            "produksi/add_pemusnahanbarang.html",
-            {"nama_lokasi": datalokasi, "databarang": databarang},
+            "produksi/add_saldosubkon.html",
+            { "datasubkon": datasubkon},
         )
     else:
-        print(request.POST)
-        # Get object
         kodeproduk = request.POST["produk"]
-        lokasi = request.POST["nama_lokasi"]
         jumlah = request.POST["jumlah"]
         tanggal = request.POST["tanggal"]
-        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
-        lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
-        pemusnahanobj = models.PemusnahanBahanBaku(
-            Tanggal=tanggal, Jumlah=jumlah, KodeBahanBaku=produkobj, lokasi=lokasiobj
-        )
+        produkobj = models.ProdukSubkon.objects.get(NamaProduk=kodeproduk)
+        pemusnahanobj = models.SaldoAwalSubkon(
+            Tanggal=tanggal, Jumlah=jumlah, IDProdukSubkon=produkobj)
         pemusnahanobj.save()
-        return redirect("view_pemusnahanbarang")
+        return redirect("view_saldosubkon")
 
 
 def update_saldosubkon(request, id):
-    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+    dataobj = models.SaldoAwalSubkon.objects.get(IDSaldoAwalProdukSubkon=id)
     dataobj.Tanggal = dataobj.Tanggal.strftime("%Y-%m-%d")
-    lokasiobj = models.Lokasi.objects.all()
+    datasubkon = models.ProdukSubkon.objects.all()
     if request.method == "GET":
-
         return render(
             request,
-            "produksi/update_pemusnahanbarang.html",
-            {"data": dataobj, "nama_lokasi": lokasiobj},
+            "produksi/update_saldosubkon.html",
+            {"data": dataobj,"datasubkon": datasubkon },
         )
 
     else:
         kodeproduk = request.POST["produk"]
-        lokasi = request.POST["nama_lokasi"]
         jumlah = request.POST["jumlah"]
         tanggal = request.POST["tanggal"]
-        produkobj = models.Produk.objects.get(KodeProduk=kodeproduk)
-        lokasiobj = models.Lokasi.objects.get(IDLokasi=lokasi)
+        produkobj = models.ProdukSubkon.objects.get(NamaProduk=kodeproduk)
 
         dataobj.Tanggal = tanggal
         dataobj.Jumlah = jumlah
-        dataobj.KodeBahanBaku = produkobj
-        dataobj.lokasi = lokasiobj
-
+        dataobj.IDProdukSubkon = produkobj
         dataobj.save()
-        return redirect("view_pemusnahanbarang")
+        return redirect("view_saldosubkon")
 
 
 def delete_saldosubkon(request, id):
-    dataobj = models.PemusnahanBahanBaku.objects.get(IDPemusnahanBahanBaku=id)
+    dataobj = models.SaldoAwalSubkon.objects.get(IDSaldoAwalProdukSubkon=id)
 
     dataobj.delete()
-    return redirect(view_pemusnahan)
+    return redirect(view_saldosubkon)
 
 
 # Kartu Stok Subkon
 def view_ksbbsubkon(request):
     kodeproduk = models.Produk.objects.all()
     if len(request.GET) == 0:
-        return render(request, "produksi/newview_ksbb.html", {"kodeprodukobj": kodeproduk})
+        return render(request, "produksi/view_ksbbsubkon.html", {"kodeprodukobj": kodeproduk})
     else:
         """
         1. Cari 
@@ -3604,7 +3596,7 @@ def view_ksbbsubkon(request):
             satuan = produk.unit
         except:
             messages.error(request, "Data Produk tidak ditemukan")
-            return redirect("view_ksbb")
+            return redirect("ksbbsubkon")
         
         if request.GET["periode"]:
             tahun = int(request.GET["periode"])
@@ -3678,13 +3670,13 @@ def view_ksbbsubkon(request):
             data['Sisa'] = sisa
             listdata.append(data)
 
-        return render(request, "produksi/view_ksbb.html",{'data':listdata,'saldo':saldoawal,'kodebarang':request.GET["kodebarang"],"nama": nama,"satuan": satuan,})
+        return render(request, "produksi/view_ksbbsubkon.html",{'data':listdata,'saldo':saldoawal,'kodebarang':request.GET["kodebarang"],"nama": nama,"satuan": satuan,})
     
 
 def view_ksbjsubkon(request):
     kodeproduk = models.ProdukSubkon.objects.all()
     if len(request.GET) == 0:
-        return render(request, "produksi/view_ksbj.html", {"kodeprodukobj": kodeproduk})
+        return render(request, "produksi/view_ksbjsubkon.html", {"kodeprodukobj": kodeproduk})
     else:
         """
         1. Cari 
@@ -3695,7 +3687,7 @@ def view_ksbjsubkon(request):
             satuan = produk.Unit
         except:
             messages.error(request, "Data Produk Subkon tidak ditemukan")
-            return redirect("view_ksbbsubkon")
+            return redirect("ksbjsubkon")
         
         idartikel = produk.KodeArtikel
         artikel = models.Artikel.objects.get(KodeArtikel=idartikel)
@@ -3781,4 +3773,4 @@ def view_ksbjsubkon(request):
 
             listdata.append(data)
 
-        return render(request, "produksi/view_ksbj.html",{"data":listdata,'saldo':saldoawal,"nama": nama,"satuan": satuan,"artikel":artikel})
+        return render(request, "produksi/view_ksbjsubkon.html",{"data":listdata,'saldo':saldoawal,"nama": nama,"satuan": satuan,"artikel":artikel})
