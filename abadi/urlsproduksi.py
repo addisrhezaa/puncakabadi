@@ -13,7 +13,7 @@ urlpatterns = [
     path("addspk", viewsproduksi.add_spk, name="add_spk"),
     path("detailspk/<str:id>", viewsproduksi.detail_spk, name="detail_spk"),
     path("deletespk/<str:id>", viewsproduksi.delete_spk, name="delete_spk"),
-    path("deletedetailspk/<str:id>", viewsproduksi.delete_detailspk, name="delete_detailspk",),
+    path("detailspk/deletedetailspk/<str:id>", viewsproduksi.delete_detailspk, name="delete_detailspk",),
 
     path("trackingspk/<str:id>", viewsproduksi.track_spk, name="tracking_spk"),
 
@@ -21,7 +21,7 @@ urlpatterns = [
     path("addsppb", viewsproduksi.add_sppb, name="add_sppb"),
     path("detailsppb/<str:id>", viewsproduksi.detail_sppb, name="detail_sppb"),
     path("deletesppb/<str:id>", viewsproduksi.delete_sppb, name="delete_sppb"),
-    path("deletedetailsppb/<str:id>",viewsproduksi.delete_detailsppb, name="delete_detailsppb",),
+    path("detailsppb/deletedetailsppb/<str:id>",viewsproduksi.delete_detailsppb, name="delete_detailsppb",),
 
     path("viewproduksi", viewsproduksi.view_produksi, name="view_produksi"),
     path("addproduksi", viewsproduksi.add_produksi, name="add_produksi"),
@@ -76,8 +76,8 @@ urlpatterns = [
     path("updatetransaksisubkonterima/<str:id>",viewsproduksi.update_transaksi_subkon_terima,name="update_transaksi_subkon_terima",),
     path("deletetransaksisubkonterima/<str:id>",viewsproduksi.delete_transaksi_subkon_terima,name="delete_transaksi_subkon_terima",),
 
-    path("viewksbbsubkon", viewsproduksi.view_ksbbsubkon, name="view_ksbbsubkon"),
-    path("viewksbjsubkon", viewsproduksi.view_ksbjsubkon, name="view_ksbjsubkon"),
+    path("ksbbsubkon", viewsproduksi.view_ksbbsubkon, name="ksbbsubkon"),
+    path("ksbjsubkon", viewsproduksi.view_ksbjsubkon, name="ksbjsubkon"),
 
     path("penyesuaian", viewsproduksi.penyesuaian, name="view_penyesuaian"),
     path("addpenyesuaian", viewsproduksi.addpenyesuaian, name="addpenyesuaian"),
@@ -86,4 +86,20 @@ urlpatterns = [
 
     path("kalkulatorpenyesuaian",viewsproduksi.kalkulatorpenyesuaian,name="kalkulatorpenyesuaian",),
     path("kalkulatorpenyesuaian2",viewsproduksi.kalkulatorpenyesuaian2,name="kalkulatorpenyesuaian2",),
+    
+    path("viewsaldobahan", viewsproduksi.view_saldobahan, name="view_saldobahan"),
+    path("viewsaldoartikel", viewsproduksi.view_saldoartikel, name="view_saldoartikel"),
+    path("viewsaldosubkon", viewsproduksi.view_saldosubkon, name="view_saldosubkon"),
+
+    path("addsaldobahan", viewsproduksi.add_saldobahan, name="add_saldobahan"),
+    path("addsaldoartikel", viewsproduksi.add_saldoartikel, name="add_saldoartikel"),
+    path("addsaldosubkon", viewsproduksi.add_saldosubkon, name="add_saldosubkon"),
+
+    path("updatesaldobahan/<str:id>", viewsproduksi.update_saldobahan, name="update_saldobahan"),
+    path("updatesaldoartikel/<str:id>", viewsproduksi.update_saldoartikel, name="update_saldoartikel"),
+    path("updatesaldosubkon/<str:id>", viewsproduksi.update_saldosubkon, name="update_saldosubkon"),
+
+    path("deletesaldobahan/<str:id>", viewsproduksi.delete_saldobahan, name="delete_saldobahan"),
+    path("deletesaldoartikel/<str:id>", viewsproduksi.delete_saldoartikel, name="delete_saldoartikel"),
+    path("deletesaldosubkon/<str:id>", viewsproduksi.delete_saldosubkon, name="delete_saldosubkon"),
 ]
